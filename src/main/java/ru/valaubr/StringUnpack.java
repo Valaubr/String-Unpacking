@@ -1,16 +1,11 @@
 package ru.valaubr;
 
-public class Main {
+import java.util.Arrays;
+import java.util.List;
 
-    private static String EXCEPTION_MESSAGE = "Open substring digit not found";
+public class StringUnpack {
 
-    public static void main(String[] args) throws IllegalStringFormatException {
-        unpackString("2[3[x]y]");
-        System.out.println(unpackString("3[xyz]4[xy]z"));
-        System.out.println(unpackString("2[3[xyz]4[xy]z]"));
-    }
-
-    public static String unpackString(String compressedString) throws IllegalStringFormatException {
+    public String unpackString(String compressedString) {
         if (compressedString == null) {
             throw new NullPointerException("Trying unpack null object");
         } else if (compressedString.isEmpty()) {
@@ -20,7 +15,7 @@ public class Main {
         return recursiveRead(compressedString, stringBuilder, 1).toString();
     }
 
-    private static StringBuilder recursiveRead(String compressedString, StringBuilder stringBuilder, int cycle) throws IllegalStringFormatException {
+    private StringBuilder recursiveRead(String compressedString, StringBuilder stringBuilder, int cycle) {
         int leftPos = 0;
         int rightPos = 0;
         int subCycle = 0;
@@ -31,25 +26,36 @@ public class Main {
                     if (compressedString.charAt(i + 1) == '[') {
                         lvl += 1;
                         if (lvl == 1) {
-                            subCycle = Character.digit(compressedString.charAt(i), 10);
+                            subCycle += Character.digit(compressedString.charAt(i), 10);
                             leftPos = i + 2;
                         }
+                    } else if (Character.isDigit(compressedString.charAt(i + 1))) {
+                        if (lvl == 0) {
+                            if (subCycle == 0) {
+                                subCycle = Character.digit(compressedString.charAt(i), 10) * 10;
+                            } else {
+                                subCycle += subCycle * 10;
+                            }
+                        }
                     } else {
-                        throw new IllegalStringFormatException(EXCEPTION_MESSAGE);
+                        throw new IllegalArgumentException("Open digit not found");
                     }
+                } else if (compressedString.charAt(i) == '[' && i == 0 || compressedString.charAt(i) == '[' && !Character.isDigit(compressedString.charAt(i - 1))) {
+                    throw new IllegalArgumentException();
                 } else if (compressedString.charAt(i) == ']') {
                     rightPos = i;
                     lvl -= 1;
                     if (lvl == 0) {
                         recursiveRead(compressedString.substring(leftPos, rightPos), stringBuilder, subCycle);
+                        subCycle = 0;
                     }
                 } else if (lvl == 0) {
                     stringBuilder.append(compressedString.charAt(i));
                 }
             }
         }
-        if (leftPos > rightPos) {
-            throw new IllegalStringFormatException(EXCEPTION_MESSAGE);
+        if (leftPos > rightPos || lvl != 0) {
+            throw new IllegalArgumentException("']' not found");
         }
         return stringBuilder;
     }
