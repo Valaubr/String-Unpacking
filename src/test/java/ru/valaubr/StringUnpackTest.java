@@ -30,7 +30,7 @@ class StringUnpackTest {
     public void testStringUnpackBigData() throws IOException {
         //Т.к. в задаче не указано что требуется писать строку в файл => храним ее в памяти
         //=> размер строки ограничен HEAP_SPACE
-        BufferedReader fileReader = new BufferedReader(new FileReader("D:\\GitDirs\\String-Unpacking\\src\\main\\resources\\testFile.txt"));
+        BufferedReader fileReader = new BufferedReader(new FileReader("testFile.txt"));
         assertEquals(stringUnpack.unpackString("2[4[8[64[qa]]observer8[64[ta]]]4[8[64[ja]]observer8[64[tu]]]4[8[64[ou]]observer8[64[op]]]4[8[64[kr]]observer8[64[la]]observer]]"), fileReader.readLine());
 
     }
