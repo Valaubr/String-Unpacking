@@ -1,9 +1,7 @@
 package ru.valaubr;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class StringUnpack {
+    StringBuilder stringBuilder;
 
     public String unpackString(String compressedString) {
         if (compressedString == null) {
@@ -11,52 +9,57 @@ public class StringUnpack {
         } else if (compressedString.isEmpty()) {
             return "";
         }
-        StringBuilder stringBuilder = new StringBuilder();
-        return recursiveRead(compressedString, stringBuilder, 1).toString();
+        stringBuilder = new StringBuilder();
+        recursiveRead(compressedString, stringBuilder, 1);
+        return stringBuilder.toString();
     }
 
-    private StringBuilder recursiveRead(String compressedString, StringBuilder stringBuilder, int cycle) {
-        int leftPos = 0;
-        int rightPos = 0;
-        int subCycle = 0;
+    // Memory:
+    // Worst case scenario: O(n * n/2 + n/2)
+    // Normal case scenario: O(n)
+    // Complexity:
+    // Worst case scenario: O(n)
+    // Normal case scenario: O(n)
+    private int recursiveRead(String compressedString, StringBuilder stringBuilder, int cycle) {
         int lvl = 0;
-        for (int j = 0; j < cycle; j++) {
-            for (int i = 0; i < compressedString.length(); i++) {
-                if (Character.isDigit(compressedString.charAt(i))) {
-                    if (compressedString.charAt(i + 1) == '[') {
+        int returnValue = 0;
+        int subCycle = 0;
+        for (int i = 0; i < cycle; i++) {
+            for (int j = 0; j < compressedString.length(); j++) {
+                if (!Character.isDigit(compressedString.charAt(j))
+                        && compressedString.charAt(j) != '['
+                        && compressedString.charAt(j) != ']'
+                        && lvl == 0) {
+                    stringBuilder.append(compressedString.charAt(j));
+                } else if (Character.isDigit(compressedString.charAt(j)) && lvl == 0) {
+                    if (compressedString.charAt(j + 1) == '[') {
                         lvl += 1;
-                        if (lvl == 1) {
-                            subCycle += Character.digit(compressedString.charAt(i), 10);
-                            leftPos = i + 2;
-                        }
-                    } else if (Character.isDigit(compressedString.charAt(i + 1))) {
-                        if (lvl == 0) {
-                            if (subCycle == 0) {
-                                subCycle = Character.digit(compressedString.charAt(i), 10) * 10;
-                            } else {
-                                subCycle += subCycle * 10;
-                            }
+                        subCycle += Character.digit(compressedString.charAt(j), 10);
+                        j += recursiveRead(compressedString.substring(j + 2), stringBuilder, subCycle);
+                        subCycle = 0;
+                    } else if (Character.isDigit(compressedString.charAt(j + 1))) {
+                        if (subCycle == 0) {
+                            subCycle = Character.digit(compressedString.charAt(j), 10) * 10;
+                        } else {
+                            subCycle += subCycle * 10;
                         }
                     } else {
                         throw new IllegalArgumentException("Open digit not found");
                     }
+                } else if (compressedString.charAt(j) == ']') {
+                    if (lvl == 0) {
+                        returnValue = j;
+                        break;
+                    }
+                    lvl -= 1;
                 } else if (compressedString.charAt(i) == '[' && i == 0 || compressedString.charAt(i) == '[' && !Character.isDigit(compressedString.charAt(i - 1))) {
                     throw new IllegalArgumentException();
-                } else if (compressedString.charAt(i) == ']') {
-                    rightPos = i;
-                    lvl -= 1;
-                    if (lvl == 0) {
-                        recursiveRead(compressedString.substring(leftPos, rightPos), stringBuilder, subCycle);
-                        subCycle = 0;
-                    }
-                } else if (lvl == 0) {
-                    stringBuilder.append(compressedString.charAt(i));
                 }
             }
         }
-        if (leftPos > rightPos || lvl != 0) {
+        if (lvl != 0) {
             throw new IllegalArgumentException("']' not found");
         }
-        return stringBuilder;
+        return returnValue + 1;
     }
 }

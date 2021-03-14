@@ -14,7 +14,7 @@ class StringUnpackTest {
 
     @Test
     public void testStringUnpackNormalData() {
-        //assertEquals(stringUnpack.unpackString("3[xyz]4[xy]z"), "xyzxyzxyzxyxyxyxyz");
+        assertEquals(stringUnpack.unpackString("3[xyz]4[xy]z"), "xyzxyzxyzxyxyxyxyz");
         assertEquals(stringUnpack.unpackString("asd2[3[x]y]"), "asdxxxyxxxy");
         assertEquals(stringUnpack.unpackString("2[3[x]y]"), "xxxyxxxy");
         assertEquals(stringUnpack.unpackString("2[7[xyz]5[git]k]e"), "xyzxyzxyzxyzxyzxyzxyzgitgitgitgitgitkxyzxyzxyzxyzxyzxyzxyzgitgitgitgitgitke");
